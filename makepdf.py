@@ -2,6 +2,8 @@ import argparse
 import time
 import os
 
+import pytesseract
+
 import PIL.Image
 import glob
 from palut import r1, c1, c2, c3, c4, c5, rst
@@ -14,7 +16,7 @@ def get_args():
     parser.add_argument("-v", "--verbosity", action='store', type=int, default=2,
                         help="0=Errors, 1=Quiet, 2=Normal, 3=Info, 4=Debug")
     parser.add_argument("-a", "--action", action='store',
-                        required=False, help="action - b=build, r=rename", default="b")
+                        required=False, help="action - b=build, r=rename, x=extract", default="b")
 
     # Input Directory
     parser.add_argument("-id", "--inDir", action='store',
@@ -30,6 +32,25 @@ def get_args():
 
     args = parser.parse_args()
     return args
+
+def extract(basename, file_jpgList):
+    nf = len(file_jpgList)
+    txt_list = []
+    _, basefname = os.path.split(basename)
+    totlen = 0
+    for inum, f in enumerate(file_jpgList):
+        text = pytesseract.image_to_string(PIL.Image.open(f))
+        pglen = len(text)
+        print(f"Extracted {pglen} text chars from {f}")
+        totlen += pglen
+        txt_list.append(text)
+
+    txname = f"txt/{basefname}.txt"
+    file = open(txname, "w")
+    for inum, txt in enumerate(txt_list):
+        file.write(f"{txt}\n")
+    file.close()
+    print(f"Extracted {totlen} text chars to {txname}")
 
 
 def rename(basename, file_jpgList):
@@ -83,12 +104,16 @@ def main():
         action = "rename"
     elif action == "b":
         action = "build"
+    elif action == "x":
+        action = "extract"
 
     match action:
         case "rename":
             rename(sourcedir, file_jpgList)
         case "build":
             build_pdf(pdfname, file_jpgList)
+        case "extract":
+            extract(sourcedir, file_jpgList)
 
     elapTime = time.time() - startTime
     print(f"{c1}Execution took {c2}{elapTime:.3f}{rst} secs ")
