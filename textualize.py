@@ -36,25 +36,33 @@ def get_args():
     return args
 
 
-def fish_for_page(text):
+def fish_for_page(text, dct):
     # regex = "(=|\\?|\\/)(Page|page)(\\S|_|-|=|\\/)?(\\d{1,3})"
     regex = r".*\b(page)\s+?(\d+)*"
+    regex = r".*\b(page)\s+?(\d+)"
     # if "Page" in text:
     #     print(f"Found Page in {text}")
     match = re.search(regex, text, re.IGNORECASE)
     if match:
         pagenum = match.group(2)
-    else:
-        pagenum = 0
-    return match, pagenum
+        dct["page"] = pagenum
+
+
+def fish_for_strom(text, dct):
+    # regex = "(=|\\?|\\/)(Page|page)(\\S|_|-|=|\\/)?(\\d{1,3})"
+    regex = r".*\b(strom)\s+?([0-9]*[.,][0-9]*)\skWh"
+    # if "Page" in text:
+    #     print(f"Found Page in {text}")
+    match = re.search(regex, text, re.IGNORECASE)
+    if match:
+        strom = match.group(2)
+        dct["strom"] = strom
 
 
 def crack_line(line: str):
     rv = {}
-    ok, pnum = fish_for_page(line)
-    if ok:
-        # print(f"Found page number {pnum} in line {line}")
-        rv["page"] = pnum
+    fish_for_page(line, rv)
+    fish_for_strom(line, rv)
     return rv
 
 
@@ -85,8 +93,8 @@ def extract(basename, file_jpgList):
             nwords = len(words)
             totwords += nwords
             results = crack_line(line)
-            if "page" in results:
-                pnum = results["page"]
+            for key in results:
+                pagedict[key] = results[key]
         print(f"Extracted text chars:{pglen} words:{totwords} lines:{nlines} from {f}")
         totlen += pglen
         txt_list.append(text)
@@ -124,11 +132,6 @@ def extract(basename, file_jpgList):
     csv_name = f"{bpath}/txt/{basefname}.csv"
     os.makedirs(os.path.dirname(csv_name), exist_ok=True)
     file = open(csv_name, "w")
-    header = ""
-    for key in xdict.keys():
-        header += f"{key},"
-    header = header[:-1] # remove trailing comma
-    file.write(f"{header}\n")
     # find all the colnames in xdict["pages"]
     colnames = []
     for pagedict in xdict["pages"]:
@@ -136,6 +139,13 @@ def extract(basename, file_jpgList):
             if key not in colnames:
                 colnames.append(key)
     print("Found colnames:", colnames)
+
+    header = ""
+    for key in colnames:
+        header += f"{key},"
+    header = header[:-1] # remove trailing comma
+    file.write(f"{header}\n")
+
     # now write it out
     for pagedict in xdict["pages"]:
         line = ""
