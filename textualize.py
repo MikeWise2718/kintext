@@ -2,6 +2,7 @@ import argparse
 import time
 import os
 import re
+import json
 
 import pytesseract
 
@@ -63,7 +64,7 @@ def extract(basename, file_jpgList):
     xdict["pages"] = []
     nf = len(file_jpgList)
     txt_list = []
-    _, basefname = os.path.split(basename)
+    bpath, basefname = os.path.split(basename)
     total_bk_chars = 0
     total_bk_words = 0
     total_bk_lines = 0
@@ -103,16 +104,50 @@ def extract(basename, file_jpgList):
     xdict["total_words"] = total_bk_words
     xdict["total_lines"] = total_bk_lines
 
-    txname = f"txt/{basefname}.txt"
-    file = open(txname, "w")
+    # txt output
+    txt_name = f"{bpath}/txt/{basefname}.txt"
+    os.makedirs(os.path.dirname(txt_name), exist_ok=True)
+    file = open(txt_name, "w")
     for inum, txt in enumerate(txt_list):
         file.write(f"{txt}\n")
     file.close()
-    print(f"Extracted text chars:{total_bk_chars} words:{total_bk_words} lines:{total_bk_lines} from {nf} images to {txname}")
+    print(f"Extracted text chars:{total_bk_chars} words:{total_bk_words} lines:{total_bk_lines} from {nf} images to {txt_name}")
 
-    xdictname = f"txt/{basefname}.json"
-    file = open(xdictname, "w")
-    file.write(str(xdict))
+    # json output
+    xdict_name = f"{bpath}/txt/{basefname}.json"
+    os.makedirs(os.path.dirname(xdict_name), exist_ok=True)
+    file = open(xdict_name, "w")
+    j_string = json.dumps(xdict)
+    file.write(j_string)
+
+    # csv output
+    csv_name = f"{bpath}/txt/{basefname}.csv"
+    os.makedirs(os.path.dirname(csv_name), exist_ok=True)
+    file = open(csv_name, "w")
+    header = ""
+    for key in xdict.keys():
+        header += f"{key},"
+    header = header[:-1] # remove trailing comma
+    file.write(f"{header}\n")
+    # find all the colnames in xdict["pages"]
+    colnames = []
+    for pagedict in xdict["pages"]:
+        for key in pagedict.keys():
+            if key not in colnames:
+                colnames.append(key)
+    print("Found colnames:", colnames)
+    # now write it out
+    for pagedict in xdict["pages"]:
+        line = ""
+        for cn in colnames:
+            if cn in pagedict:
+                line += f"{pagedict[cn]},"
+            else:
+                line += "NA,"
+        line = line[:-1] # remove trailing comma
+        file.write(f"{line}\n")
+    file.close()
+
     return xdict
 
 def rename(basename, file_jpgList):
