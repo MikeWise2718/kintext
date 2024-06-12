@@ -1,9 +1,9 @@
 # pdf maker
 Commands
-- `python makepdf.py`
-- `python makepdf.py -a b -id bk/yw1`
-- `python makepdf.py -a r -id bk/yw1_test`
-- `python makepdf.py -a x -id bk/yw1_test`
+- `python textualize.py`
+- `python textualize.py -a b -id bk/energy`
+- `python textualize.py -a r -id bk/energy`
+- `python textualize.py -a x -id bk/energy`
 
 
 Tessearact

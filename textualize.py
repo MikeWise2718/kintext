@@ -6,17 +6,19 @@ import pytesseract
 
 import PIL.Image
 import glob
-from palut import r1, c1, c2, c3, c4, c5, rst
+
+from txtut import c1, c2, rst
+
 
 def get_args():
-    parser = argparse.ArgumentParser(description="Build Robot ",
+    parser = argparse.ArgumentParser(description="Textualize images in a directory ",
                                      formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 
     # General Settings
     parser.add_argument("-v", "--verbosity", action='store', type=int, default=2,
                         help="0=Errors, 1=Quiet, 2=Normal, 3=Info, 4=Debug")
     parser.add_argument("-a", "--action", action='store',
-                        required=False, help="action - b=build, r=rename, x=extract", default="b")
+                        required=False, help="action - b=build pdf, r=rename files, x=extract to text", default="b")
 
     # Input Directory
     parser.add_argument("-id", "--inDir", action='store',
@@ -32,6 +34,7 @@ def get_args():
 
     args = parser.parse_args()
     return args
+
 
 def extract(basename, file_jpgList):
     nf = len(file_jpgList)
@@ -50,7 +53,7 @@ def extract(basename, file_jpgList):
     for inum, txt in enumerate(txt_list):
         file.write(f"{txt}\n")
     file.close()
-    print(f"Extracted {totlen} text chars to {txname}")
+    print(f"Extracted {totlen} text chars to {txname} from {nf} images")
 
 
 def rename(basename, file_jpgList):
