@@ -8,7 +8,7 @@
 
 
 ## Using Tessearact directly
-`tesseract  bill_2010_2.jpg stdout`
+`tesseract --oem 1 --psm 6 bill_2010_2.jpg stdout`
 
 ## Pretty print json
 python -m json.tool file.json

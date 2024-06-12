@@ -35,6 +35,11 @@ def get_args():
     args = parser.parse_args()
     return args
 
+def cleanumber(numstr):
+    numstr = numstr.replace(".", "")
+    numstr = numstr.replace(",", ".")
+    numstr = numstr.replace(" ", "")
+    return numstr
 
 def fish_for_page(text, dct):
     # regex = "(=|\\?|\\/)(Page|page)(\\S|_|-|=|\\/)?(\\d{1,3})"
@@ -50,13 +55,23 @@ def fish_for_page(text, dct):
 
 def fish_for_strom(text, dct):
     # regex = "(=|\\?|\\/)(Page|page)(\\S|_|-|=|\\/)?(\\d{1,3})"
-    regex = r".*\b(strom)\s+?([0-9]*[.,][0-9]*)\skWh"
+    if "Strom" in text:
+        print(text)
+    regex1 = r".*\b(strom)\s+?([0-9]*[.,][0-9]*)\skWh"
+    regex2 = r".*\b(strom)\s+?([0-9]*[.,][0-9]*)\skWh\s+?([0-9]*[.,][0-9]+[,][0-9]*)\sEUR"
     # if "Page" in text:
     #     print(f"Found Page in {text}")
-    match = re.search(regex, text, re.IGNORECASE)
-    if match:
-        strom = match.group(2)
-        dct["strom"] = strom
+    match1 = re.match(regex1, text, re.IGNORECASE)
+    if match1:
+        print("Matched1 - ",text)
+        strom = match1.group(2)
+        dct["strom"] = cleanumber(strom)
+
+    match2 = re.match(regex2, text, re.IGNORECASE)
+    if match2:
+        print("Matched2 - ",text)
+        stromnetcost = match2.group(3)
+        dct["stromnetcost"] = cleanumber(stromnetcost)
 
 
 def crack_line(line: str):
@@ -82,7 +97,7 @@ def extract(basename, file_jpgList):
     totlen = 0
     for inum, f in enumerate(file_jpgList):
         pagedict = {}
-        text = pytesseract.image_to_string(PIL.Image.open(f))
+        text = pytesseract.image_to_string(PIL.Image.open(f), config="--oem 1 --psm 6")
         pglen = len(text)
         lines = text.split("\n")
         nlines = len(lines)

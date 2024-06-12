@@ -27,6 +27,14 @@
             "program": "textualize.py",
             "args": ["-a","x","-id","h:/python/kintext/bk/yw1_test"],
             "console": "internalConsole"
+        },
+        {
+            "name": "xtract energyt",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "textualize.py",
+            "args": ["-a","x","-id","bk/energy"],
+            "console": "internalConsole"
         }
 
     ]
