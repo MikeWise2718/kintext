@@ -20,3 +20,9 @@ def StrToColor(colorstr: str):
     b = int(nclr[4:6], 16) / 255.0
     color = [(r, g, b)]
     return (True, color)
+
+def cleanup_path(path: str) -> str:
+    if path is not None:
+        path = path.replace("\\", "/")
+        path = path.replace("//", "/")
+    return path

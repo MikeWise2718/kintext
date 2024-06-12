@@ -8,7 +8,7 @@
             "name": "build yw1",
             "type": "debugpy",
             "request": "launch",
-            "program": "makepdf.py",
+            "program": "textualize.py",
             "args": ["-a","b","-id","bk/yw1"],
             "console": "internalConsole"
         },
@@ -16,9 +16,18 @@
             "name": "rename yw1_test",
             "type": "debugpy",
             "request": "launch",
-            "program": "makepdf.py",
+            "program": "textualize.py",
             "args": ["-a","r","-id","bk/yw1_test"],
             "console": "internalConsole"
+        },
+        {
+            "name": "xtract yw1_test",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "textualize.py",
+            "args": ["-a","x","-id","h:/python/kintext/bk/yw1_test"],
+            "console": "internalConsole"
         }
+
     ]
 }
