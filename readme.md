@@ -10,5 +10,5 @@
 ## Using Tessearact directly
 `tesseract  bill_2010_2.jpg stdout`
 
-##
-python -m json file.json
+## Pretty print json
+python -m json.tool file.json
